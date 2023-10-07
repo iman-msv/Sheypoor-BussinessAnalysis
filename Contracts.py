@@ -98,3 +98,100 @@ plt.show()
 sns.histplot(x = 'return_rate_perc', data = renew_return_rates, binwidth=10)
 plt.xlabel('Renew Rate %')
 plt.show()
+
+# Pivoted renew return table
+pivoted_renew_return = pd.melt(renew_return_rates, id_vars=['region', 'category', 'month'], var_name = 'renew_return', value_name='percent')
+
+# Box plot
+sns.boxplot(x = 'renew_return', y = 'percent', data = pivoted_renew_return)
+plt.xlabel('Renew vs. Return')
+plt.ylabel('Percent')
+plt.show()
+
+# Clearly, the longer it takes since the last contract, the higher the probability of customer churn. 
+
+# Low rates of renewal
+# It's not implied what percentage rates should alarm us, so a wise thing to do is to use quartiles of its distribution.
+renew_quartiles = np.quantile(renew_return_rates['renew_rate_perc'], q = [0.25, 0.5, 0.75])
+
+print(f'The first quartile of renew distribution is: {renew_quartiles[0]:.2f}')
+print(f'The second quartile (median) of renew distribution is: {renew_quartiles[1]:.2f}')
+print(f'The third quartile of renew distribution is: {renew_quartiles[2]:.2f}')
+
+print(renew_return_rates[renew_return_rates['renew_rate_perc'] == 0])
+
+# Renew across region
+sns.boxplot(x = 'renew_rate_perc', y = 'region', data = renew_return_rates)
+plt.xlabel('Percent')
+plt.ylabel('Region')
+plt.show()
+
+print(
+'''
+Regions with lowest renewal rates are:
+Booshehr, Khorasan Jonubi, Charmahal Bakhtiari, Yazd, Kerman, Kermanshah, and Khorasan Shomali
+'''
+)
+
+# Renew across category
+sns.boxplot(x = 'renew_rate_perc', y = 'category', data = renew_return_rates)
+plt.xlabel('Percent')
+plt.ylabel('Category')
+plt.show()
+
+print(
+'''
+Categories with lowest renewal rates are:
+Khodro, Lavazem shakhsi, and Mobile-tablet.
+'''
+)
+
+# package_name, listing_limit, and industry table
+contracts_dummies = pd.concat([contracts[['region', 'category', 'month','Listing_limit']], pd.get_dummies(contracts['package_name']), pd.get_dummies(contracts['industry'])], axis=1)
+
+contracts_dummies = contracts_dummies.groupby(['region', 'category', 'month']).mean().reset_index()
+contracts_dummies = contracts_dummies[contracts_dummies['month'].isin([10, 11, 12])]
+
+merged_df = renew_return_rates.merge(contracts_dummies, how='inner', on = ['region', 'category', 'month'])
+pd.melt(merged_df, id_vars=['general', 're_auto'])
+
+# Car Industry
+sns.scatterplot(x = 'Car A', y = 'renew_rate_perc', data = merged_df[merged_df['Car A'] != 0])
+plt.show()
+
+sns.scatterplot(x = 'Car B', y = 'renew_rate_perc', data = merged_df[merged_df['Car B'] != 0])
+plt.show()
+
+sns.scatterplot(x = 'Car C', y = 'renew_rate_perc', data = merged_df[merged_df['Car C'] != 0])
+plt.show()
+
+# General Industry
+sns.scatterplot(x = 'General A', y = 'renew_rate_perc', data = merged_df[merged_df['General A'] != 0])
+plt.show()
+
+sns.scatterplot(x = 'General B', y = 'renew_rate_perc', data = merged_df[merged_df['General B'] != 0])
+plt.show()
+
+sns.scatterplot(x = 'General C', y = 'renew_rate_perc', data = merged_df[merged_df['General C'] != 0])
+plt.show()
+
+# Real Estate
+sns.scatterplot(x = 'Real Estate A', y = 'renew_rate_perc', data = merged_df[merged_df['Real Estate A'] != 0])
+plt.show()
+
+sns.scatterplot(x = 'Real Estate B', y = 'renew_rate_perc', data = merged_df[merged_df['Real Estate B'] != 0])
+plt.show()
+
+sns.scatterplot(x = 'Real Estate C', y = 'renew_rate_perc', data = merged_df[merged_df['Real Estate C'] != 0])
+plt.show()
+
+# Box Plots
+sns.boxplot(x = 'general', y = 'renew_rate_perc', data = merged_df)
+plt.show()
+
+sns.boxplot(x = 're_auto', y = 'renew_rate_perc', data = merged_df)
+plt.show()
+
+# Renewal rate vs. Listing
+sns.scatterplot(x = 'Listing_limit', y = 'renew_rate_perc', data = merged_df)
+plt.show()
