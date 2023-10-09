@@ -14,7 +14,7 @@ print(contracts.head())
 # Data Types
 print(contracts.info())
 
-# contract_date, start_date, and end_date should be transformed into a datatime objects.
+# contract_date, start_date, and end_date should be transformed into datatime objects.
 # Note: there are missing values in columns contract_date, start_date, and region.
 # real_end_date has only 8 values.
 
